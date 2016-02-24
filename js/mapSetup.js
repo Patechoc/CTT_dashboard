@@ -6,6 +6,8 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
     accessToken: 'pk.eyJ1IjoiZnJlZHJpa2FudGhvbmlzZW4iLCJhIjoiY2lrcXk1cTJzMDAxM3dsa3FmOWRiejJtNyJ9.HMZmGTfUijbKOxKt7P78rQ'
 }).addTo(map);
 
+L.control.fullscreen().addTo(map);
+
 var circle = L.circle([63.430656, 10.392196], 100, {
     color: 'red',
     fillColor: '#ec5840',
