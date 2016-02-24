@@ -1,13 +1,12 @@
 var base_url = "http://thethingsnetwork.org/api/v0/nodes/";
 var devices = [
   {'id': '02032201', 'position': {'lat': 63.433297, 'lon': 10.395755}},
+  {'id': '02032200', 'position': {'lat': 63.427297, 'lon': 10.410000}},
   {'id': '02032222', 'position': {'lat': 63.418018, 'lon': 10.401240}}];
 var data_from_ttn = [];
+var markers = [];
 
-$(document).ready(function() {
-  // TODO: for scalability when number of nodes increase,
-  // consider using MQTT instead of API: http://thethingsnetwork.org/wiki/Software/Overview
-
+function getTTNData() {
   $.each( devices, function(i, device) {
     console.log("Getting data from node: " + device['id']);
     $.get( base_url + device['id'])
@@ -59,6 +58,7 @@ $(document).ready(function() {
           .bindPopup("<b>Node "+device['id']+"'s latest measurements</b><br>\
             <b>Time</b>: " + timestamp + "<br>"+
             sensorDataFormatted);
+        markers.push(marker);
           // TODO add each data point to a graph
         // $.each(data, function(k, v) {
         //   // DEV only put data from one node in the dygraph!
@@ -94,4 +94,13 @@ $(document).ready(function() {
         // do something
       });
   });
+}
+
+$(document).ready(function() {
+  // TODO: for scalability when number of nodes increase,
+  // consider using MQTT instead of API: http://thethingsnetwork.org/wiki/Software/Overview
+
+  getTTNData();
+  // TODO: keep track of markers and update the popup content every 1 minute or so
+  // setInterval(getTTNData, 10000);
 });
