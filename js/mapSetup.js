@@ -8,15 +8,14 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
 
 L.control.fullscreen().addTo(map);
 
-var circle = L.circle([63.430656, 10.392196], 100, {
-    color: 'red',
-    fillColor: '#ec5840',
-    fillOpacity: 0.5
-    }).addTo(map);
+// var circle = L.circle([63.430656, 10.392196], 100, {
+//     color: 'red',
+//     fillColor: '#ec5840',
+//     fillOpacity: 0.5
+//     }).addTo(map);
 
-var circle = L.circle([63.428062, 10.388362], 100, {
-    color: 'green',
-    fillColor: '#3adb76',
-    fillOpacity: 0.5
-    }).addTo(map);
-
+// var circle = L.circle([63.428062, 10.388362], 100, {
+//     color: 'green',
+//     fillColor: '#3adb76',
+//     fillOpacity: 0.5
+//     }).addTo(map);
