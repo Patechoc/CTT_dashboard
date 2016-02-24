@@ -1,0 +1,7 @@
+.maps {
+    height: 500px;
+}
+
+#regionMap {
+    display: none;
+}

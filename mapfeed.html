@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Basic Page Needs
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <meta charset="utf-8">
+    <title>CTT Visualization</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+    
+    <!-- Mobile Specific Metas
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+    <!-- FONT
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+                            
+    <!-- CSS
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    <link rel="stylesheet" href="css/map.css">
+
+        
+    <!-- Favicon
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link rel="icon" type="image/png" href="images/favicon.png">
+        
+    <!-- JS
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    <script src="js/regionListener.js"></script>
+    <script src="js/mapListener.js"></script>
+        
+</head>
+<body>
+
+    <!-- Primary Page Layout
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="container">
+        <div class="row">
+            <div class="column" style="margin-top: 5%">
+                <h4>Carbon Track and Trace: Live Feed _ Map </h4>
+                    
+                <a class="button button-primary" href="index.html">Home</a>
+                <a class="button button-primary" href="mapfeed.html">Map Feed</a>
+                <a class="button button-primary" href="sensorfeed.html">Sensor Feed</a>
+            </div>
+        </div>
+        <div class="maps" id="map"></div>
+        <div class="maps" id="regionMap"></div>
+        <div id="mapOptions">
+        <button id="sensorPointButton">Sensor Points</button>
+        <button id="regionButton">Regional Overview</button>
+        </div>
+    </div>
+        
+    <!-- End Document
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <script src="js/mapSetup.js"></script>
+</body>
+</html>
