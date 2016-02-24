@@ -33,12 +33,19 @@ $(document).ready(function() {
           var name = result[0].split(":")[0]
           var value = result[0].split(":")[1]
 
-          if (value === undefined ) { continue }
+          if (value === undefined ) {
+            continue
+          }
+
           sensorDataFormatted += "<b>"+name+"</b>: "+value+"<br />";
+
+          // Set color based on CO2 level
           if (name === 'GP_CO2') {
-            // Set color based on CO2 level
-            if (parseInt(value) > 700) {
-              color = 'red'
+            if (parseInt(value) > 500) {
+              color = 'orange';
+              if (parseInt(value) > 700) {
+                color = 'red';
+              }
             }
           }
         }
