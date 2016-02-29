@@ -24,6 +24,10 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="css/style.css">
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/dygraph/1.1.1/dygraph-combined.js"></script>
+  <script src="js/dygraph.smooth-plotter.js"></script>
+
   <!-- Favicon
    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="icon" type="image/png" href="images/favicon.png">
@@ -40,11 +44,16 @@
               <a class="button button-primary" href="mapfeed.html">Map Feed</a>
               <a class="button button-primary" href="sensorfeed.html">Sensor Feed</a>
           </div>
+      </div>
 
-
+      <div class="row">
+          <div class="twelve columns">
+              <div id="real-time-graph" class="graph"></div>
+          </div>
       </div>
   </div>
 
+  <script src="js/realtimeGraph.js"></script>
   <!-- End Document
    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
