@@ -88,7 +88,7 @@ function drawRealTimeGraph() {
 
   realtimeGraph = new Dygraph(graphDOMElement, ttnData,
     {
-      title: 'CO2-nivå Fjordgata',
+      title: 'CO2 levels Fjordgata',
       color: 'green',
       legend: 'always',
       fillGraph: true,
