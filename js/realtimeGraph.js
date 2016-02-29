@@ -71,7 +71,7 @@ function getNewTTNData() {
           var re = /GP_CO2:(.*?)(?=#)/;
           var match = re.exec(decodedData)
           ttnData.push( [date, match[1]] )
-          g.updateOptions( { 'file': ttnData } );
+          realtimeGraph.updateOptions( { 'file': ttnData } );
         }
       })
       .fail(function() {
