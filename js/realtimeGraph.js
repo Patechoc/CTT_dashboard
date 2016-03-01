@@ -1,7 +1,7 @@
 var realtimeGraph;
 var base_url = "http://thethingsnetwork.org/api/v0/nodes/";
 var devices = [
-  {'id': '02032201', 'position': {'lat': 63.433297, 'lon': 10.395755}},
+  {'id': '02032201', 'position': {'lat': 63.417493, 'lon': 10.396788}},
 ];
 var ttnData = [];
 
@@ -75,7 +75,13 @@ function getNewTTNData() {
           var value = match[1]
           ttnData.push( [date, value] )
           realtimeGraph.updateOptions( { 'file': ttnData } );
-          $( '#latest-value' ).html(date.toLocaleString("nn") + ': <b>' + value + '</b>')
+
+          // Get battery data
+          re = /BAT:(.*?)(?=#)/;
+          match = re.exec(decodedData)
+          var battyerLevel = match[1];
+
+          $( '#latest-value' ).html(date.toLocaleString("nn") + ': <b>' + value + '</b><br />(Battery level: <b>' + battyerLevel + '</b>)')
         }
       })
       .fail(function() {

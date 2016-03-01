@@ -1,6 +1,6 @@
 var base_url = "http://thethingsnetwork.org/api/v0/nodes/";
 var devices = [
-  {'id': '02032201', 'position': {'lat': 63.433297, 'lon': 10.395755}},
+  {'id': '02032201', 'position': {'lat': 63.417493, 'lon': 10.396788}},
   // {'id': '02032200', 'position': {'lat': 63.427297, 'lon': 10.410000}},
   // {'id': '02032222', 'position': {'lat': 63.418018, 'lon': 10.401240}}
 ];
@@ -36,7 +36,15 @@ function getTTNData() {
             continue
           }
 
-          sensorDataFormatted += "<b>"+"CO2"+"</b>: "+value+ " ppm <br />";
+          if (name === 'GP_CO2') {
+            sensorDataFormatted += "<b>CO2</b>: "+value+ " ppm<br />";
+          }
+          else if (name === 'BAT') {
+            sensorDataFormatted += "<b>Battery level</b>: "+value+ "%<br />";
+          }
+          else {
+            sensorDataFormatted += "<b>"+name+"</b>: "+value+ "<br />";
+          }
 
           // Set color based on CO2 level
           if (name === 'GP_CO2') {
@@ -55,7 +63,7 @@ function getTTNData() {
             radius: 15
           })
           .addTo(map)
-          .bindPopup("<b>Node "+device['id']+"'s latest measurements</b><br>\
+          .bindPopup("<b>"+device['id']+"'s latest measurements</b><br>\
                      <b>Time</b>: " + timestamp.getHours() + ":" + timestamp.getMinutes() + ":" + timestamp.getSeconds() + "<br>"+
             sensorDataFormatted);
         markers.push(marker);
