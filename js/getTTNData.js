@@ -64,7 +64,7 @@ function getTTNData() {
           })
           .addTo(map)
           .bindPopup("<b>"+device['id']+"'s latest measurements</b><br>\
-                     <b>Time</b>: " + timestamp.getHours() + ":" + timestamp.getMinutes() + ":" + timestamp.getSeconds() + "<br>"+
+                     <b>Time</b>: " + timestamp.toLocaleString("nn") + "<br>"+
             sensorDataFormatted);
         markers.push(marker);
           // TODO add each data point to a graph
