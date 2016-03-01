@@ -19,8 +19,7 @@ function getTTNData() {
         }
         var lat = device['position']['lat']
         var lon = device['position']['lon']
-
-        var timestamp = data[0]['time']
+        var timestamp = new Date(data[0]['time']);
         var encodedData = data[0]['data'] // Data is base64 encoded
         var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
         var result;
@@ -36,7 +35,7 @@ function getTTNData() {
             continue
           }
 
-          sensorDataFormatted += "<b>"+name+"</b>: "+value+"<br />";
+          sensorDataFormatted += "<b>"+"CO2"+"</b>: "+value+ " ppm <br />";
 
           // Set color based on CO2 level
           if (name === 'GP_CO2') {
@@ -56,7 +55,7 @@ function getTTNData() {
           })
           .addTo(map)
           .bindPopup("<b>Node "+device['id']+"'s latest measurements</b><br>\
-            <b>Time</b>: " + timestamp + "<br>"+
+                     <b>Time</b>: " + timestamp.getHours() + ":" + timestamp.getMinutes() + ":" + timestamp.getSeconds() + "<br>"+
             sensorDataFormatted);
         markers.push(marker);
           // TODO add each data point to a graph
