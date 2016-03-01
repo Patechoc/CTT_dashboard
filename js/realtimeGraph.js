@@ -81,7 +81,7 @@ function getNewTTNData() {
           match = re.exec(decodedData)
           var battyerLevel = match[1];
 
-          $( '#latest-value' ).html(date.toLocaleString("nn") + ': <b>' + value + '</b><br />(Battery level: <b>' + battyerLevel + '</b>)')
+          $( '#latest-value' ).html(date.toLocaleString("nn") + ': <b>' + value + '</b><br />(Battery level: <b>' + battyerLevel + '%</b>)')
         }
       })
       .fail(function() {
