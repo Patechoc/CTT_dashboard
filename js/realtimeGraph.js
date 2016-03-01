@@ -25,7 +25,8 @@ function getHistoricalTTNData() {
             var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
             var re = /GP_CO2:(.*?)(?=#)/;
             var match = re.exec(decodedData)
-            ttnData.push( [date, match[1]] )
+            var value = match[1]
+            ttnData.push( [date, value] )
           }
         });
         
@@ -70,7 +71,8 @@ function getNewTTNData() {
           var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
           var re = /GP_CO2:(.*?)(?=#)/;
           var match = re.exec(decodedData)
-          ttnData.push( [date, match[1]] )
+          var value = match[1]
+          ttnData.push( [date, value] )
           realtimeGraph.updateOptions( { 'file': ttnData } );
         }
       })
