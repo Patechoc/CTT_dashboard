@@ -1,8 +1,9 @@
 var base_url = "http://thethingsnetwork.org/api/v0/nodes/";
 var devices = [
   {'id': '02032201', 'position': {'lat': 63.433297, 'lon': 10.395755}},
-  {'id': '02032200', 'position': {'lat': 63.427297, 'lon': 10.410000}},
-  {'id': '02032222', 'position': {'lat': 63.418018, 'lon': 10.401240}}];
+  // {'id': '02032200', 'position': {'lat': 63.427297, 'lon': 10.410000}},
+  // {'id': '02032222', 'position': {'lat': 63.418018, 'lon': 10.401240}}
+];
 var data_from_ttn = [];
 var markers = [];
 
@@ -39,9 +40,9 @@ function getTTNData() {
 
           // Set color based on CO2 level
           if (name === 'GP_CO2') {
-            if (parseInt(value) > 500) {
+            if (parseInt(value) > 600) {
               color = 'orange';
-              if (parseInt(value) > 700) {
+              if (parseInt(value) > 1000) {
                 color = 'red';
               }
             }
