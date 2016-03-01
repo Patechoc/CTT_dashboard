@@ -48,11 +48,22 @@
     <div class="container">
         <div class="row">
             <div class="twelve columns">
-                <h4>Carbon Track &amp; Trace // Map Feed </h4>
+                <img src="images/ctt.png" class="u-max-full-width" />
+            </div>
+        </div>
 
+        <div class="row">
+            <div class="six columns">
                 <a class="button button-primary" href="index.html">About</a>
-                <a class="button button-primary" href="mapfeed.html">Map Feed</a>
+                <a class="button button-primary active" href="#">Map Feed</a>
                 <a class="button button-primary" href="sensorfeed.html">Sensor Feed</a>
+            </div>
+
+            <div class="six columns">
+                <div id="mapOptions">
+                    <button id="sensorPointButton">Sensor Points</button>
+                    <button id="regionButton">Regional Overview</button>
+                </div>
             </div>
         </div>
 
@@ -60,15 +71,6 @@
             <div class="twelve columns">
                 <div class="maps" id="map"></div>
                 <div class="maps" id="regionMap"></div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="twelve columns">
-                <div id="mapOptions">
-                    <button id="sensorPointButton">Sensor Points</button>
-                    <button id="regionButton">Regional Overview</button>
-                </div>
             </div>
         </div>
     </div>

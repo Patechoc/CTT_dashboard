@@ -1,5 +1,5 @@
 .container{
-  margin-top: 5%;
+  margin-top: 1em;
 }
 
 #real-time-graph {
@@ -12,4 +12,22 @@
 .newest-value-heading {
   margin-top: 1em;
   margin-bottom: 0;
+}
+
+.button.button-primary {
+  background-color: #6AD0FF;
+}
+.button.button-primary:hover {
+  background-color: #92E1FA;
+  border-color: #69CEEE;
+}
+
+.active {
+  background-color: #23A4DF !important;
+  border-color: #008BCB !important;
+  cursor: default;
+}
+
+#mapOptions {
+  text-align: right;
 }
