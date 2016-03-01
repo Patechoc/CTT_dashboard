@@ -1,7 +1,7 @@
 var realtimeGraph;
 var base_url = "http://thethingsnetwork.org/api/v0/nodes/";
 var devices = [
-  {'id': '02032201', 'position': {'lat': 63.417493, 'lon': 10.396788}},
+  {'id': '02032201', 'position': {'lat': 63.419290, 'lon': 10.395936}},
 ];
 var ttnData = [];
 
@@ -107,7 +107,7 @@ function drawRealTimeGraph() {
       drawPoints: true,
       // drawGapEdgePoints: true,
       // showRoller: true,
-      valueRange: [200, 1400],
+      valueRange: [0, 1200],
       labels: ['Time', 'Node 02032201'],
       ylabel: 'CO2 (ppm)'
     });
