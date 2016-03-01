@@ -5,3 +5,11 @@
 #real-time-graph {
   width: 100% !important;
 }
+
+.newest-value {
+  text-align: right;
+}
+.newest-value-heading {
+  margin-top: 1em;
+  margin-bottom: 0;
+}

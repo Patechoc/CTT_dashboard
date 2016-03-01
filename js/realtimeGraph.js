@@ -38,6 +38,7 @@ function getHistoricalTTNData() {
         // ttnData.push( [new Date("Feb 23 2016 10:00:01"), 710] )
         // ttnData.push( [new Date("Feb 22 2016 10:00:01"), 710] )
         // ttnData.push( [new Date("Feb 21 2016 10:00:01"), 710] )
+        $( '#latest-value' ).html(ttnData[0][0].toLocaleString("nn") + ': <b>' + ttnData[0][1] + '</b>')
         ttnData.reverse();
         drawRealTimeGraph();
       })
@@ -74,6 +75,7 @@ function getNewTTNData() {
           var value = match[1]
           ttnData.push( [date, value] )
           realtimeGraph.updateOptions( { 'file': ttnData } );
+          $( '#latest-value' ).html(date.toLocaleString("nn") + ': <b>' + value + '</b>')
         }
       })
       .fail(function() {
