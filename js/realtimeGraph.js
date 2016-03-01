@@ -96,8 +96,8 @@ function drawRealTimeGraph() {
       // stepPlot: true,
       drawPoints: true,
       // drawGapEdgePoints: true,
-      showRoller: true,
-      // valueRange: [0, 1000],
+      // showRoller: true,
+      valueRange: [200, 1400],
       labels: ['Time', 'Node 02032201'],
       ylabel: 'CO2 (ppm)'
     });
