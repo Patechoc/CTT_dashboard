@@ -31,3 +31,11 @@
 #mapOptions {
   text-align: right;
 }
+
+.fa-big {
+  font-size: 20em;
+}
+
+.text-center {
+  text-align: center;
+}
