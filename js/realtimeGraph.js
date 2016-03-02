@@ -98,7 +98,7 @@ function drawRealTimeGraph() {
 
   realtimeGraph = new Dygraph(graphDOMElement, ttnData,
     {
-      title: 'CO2 levels Fjordgata',
+      title: 'CO2 levels Elgeseter gate',
       color: 'green',
       legend: 'always',
       fillGraph: true,
@@ -107,7 +107,7 @@ function drawRealTimeGraph() {
       drawPoints: true,
       // drawGapEdgePoints: true,
       // showRoller: true,
-      valueRange: [0, 1200],
+      valueRange: [0, 650],
       labels: ['Time', 'Node 02032201'],
       ylabel: 'CO2 (ppm)'
     });
