@@ -61,7 +61,12 @@ function getHistoricalTTNData() {
           var re = /GP_CO2:(.*?)(?=#)/;
           var match = re.exec(decodedData)
           if (match) {
-            var value = match[1]
+            var value = parseInt(match[1], 10)
+            if (value === 0.000) {
+              console.log(deviceID + ": Value was 0.000. Skip it")
+              return;
+            }
+
             ttnData[deviceID].push( [date, value] );
           }
         });
@@ -107,8 +112,14 @@ function updateTTNData() {
           var re = /GP_CO2:(.*?)(?=#)/;
           var match = re.exec(decodedData);
           if (match) {
-            var value = match[1];
+            var value = parseInt(match[1], 10)
+            if (value === 0.000) {
+              console.log(deviceID + ": Value was 0.000. Skip it")
+              return;
+            }
+
             ttnData[deviceID].push( [date, value] );
+
             graphs[deviceID].updateOptions( { 'file' : ttnData[deviceID] } );
             $( '#latest-value-' + deviceID ).html(date.toLocaleString('nn') + ': <b>' + value + '</b>')
 
@@ -166,6 +177,7 @@ function drawGraph(deviceID) {
       digitsAfterDecimal: 3,
       // stepPlot: true,
       drawPoints: true,
+      includeZero: true,
       // drawGapEdgePoints: true,
       // showRoller: true,
       // valueRange: [0, 420],
