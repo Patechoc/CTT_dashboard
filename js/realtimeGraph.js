@@ -1,87 +1,124 @@
-var realtimeGraph;
-var base_url = "http://thethingsnetwork.org/api/v0/nodes/";
+// List of devices that send data to TTN
 var devices = [
-  {'id': '02032201', 'position': {'lat': 63.419290, 'lon': 10.395936}},
+  {
+    'id': '02032201',
+    'name': 'Elgeseter gate',
+    'color': '#23A4DF',
+    'position': {
+      'lat': 63.419290,
+      'lon': 10.395936
+    }
+  },
+  {
+    'id': '02032200',
+    'name': 'Udbyes gate',
+    'color': 'orange',
+    'position': {
+      'lat': 63.440186,
+      'lon': 10.402685
+    }
+  },
+  {
+    'id': '02032222',
+    'name': 'IoT-labben',
+    'color': 'blue',
+    'position': {
+      'lat': 63.417942,
+      'lon': 10.401298
+    }
+  }
 ];
-var ttnData = [];
+
+var baseURL = "http://thethingsnetwork.org/api/v0/nodes/";
+var ttnData = {};
+var graphs = {};
+
+$(document).ready(function () {
+  getHistoricalTTNData();
+  setInterval(updateTTNData, 30000);
+});
 
 function getHistoricalTTNData() {
   $.each( devices, function(i, device) {
-    console.log("Getting data from node: " + device['id']);
-    $.get( base_url + device['id'])
+    var deviceID = device['id'];
+    console.log("Getting data from node: " + deviceID);
+    $.get( baseURL + deviceID)
       .done(function( data ) {
-        console.log("Got some data from node: " + device['id'] + "!");
+        console.log("Got some data from node: " + deviceID + "!");
 
         if ($.isEmptyObject(data)) {
-          console.log("Data from node "+device['id']+" was empty, skipping..");
+          console.log("Data from node "+deviceID+" was empty, skipping this device");
           return;
         }
 
-        $.each(data, function(k, value) {
-          // DEV only put data from one node in the dygraph!
-          if (device['id'] === '02032201') {
-            var date = new Date(value['time'])
-            var encodedData = value['data'] // Data is base64 encoded
-            var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
-            var re = /GP_CO2:(.*?)(?=#)/;
-            var match = re.exec(decodedData)
-            var value = match[1]
-            ttnData.push( [date, value] )
-          }
-        });
-        
-        // ttnData.push( [new Date("Feb 28 2016 10:00:01"), 700] )
-        // ttnData.push( [new Date("Feb 27 2016 10:00:01"), 750] )
-        // ttnData.push( [new Date("Feb 26 2016 10:00:01"), 700] )
-        // ttnData.push( [new Date("Feb 25 2016 10:00:01"), 710] )
-        // ttnData.push( [new Date("Feb 24 2016 10:00:01"), 710] )
-        // ttnData.push( [new Date("Feb 23 2016 10:00:01"), 710] )
-        // ttnData.push( [new Date("Feb 22 2016 10:00:01"), 710] )
-        // ttnData.push( [new Date("Feb 21 2016 10:00:01"), 710] )
-        $( '#latest-value' ).html(ttnData[0][0].toLocaleString("nn") + ': <b>' + ttnData[0][1] + '</b>')
-        ttnData.reverse();
-        drawRealTimeGraph();
-      })
-      .fail(function() {
-        console.log("TTN get failed!");
-      })
-      .always(function() {
-        // do something?
-      });
-  });
-}
+        // Add device to data obejct
+        ttnData[deviceID] = [];
 
-function getNewTTNData() {
-  $.each( devices, function(i, device) {
-    console.log("Getting data from node: " + device['id']);
-    $.get( base_url + device['id'])
-      .done(function( data ) {
-        console.log("Got some data from node: " + device['id'] + "!");
-        var date = new Date(data[0]['time'])
-        var latestStoredDate = new Date(ttnData[ttnData.length - 1][0]);
-        console.log(latestStoredDate)
-        console.log(date)
-        console.log(latestStoredDate.getTime())
-        console.log(date.getTime())
-        if ( date.getTime() === latestStoredDate.getTime() ) {
-          console.log('Timestamp is same as previously fetched. So no new value.');
-        }
-        else {
-          console.log("Timestamps don't match. New value!");
-          var encodedData = data[0]['data'] // Data is base64 encoded
+        $.each(data, function(k, value) {
+          var date = new Date(value['time'])
+          var encodedData = value['data'] // Data is base64 encoded
           var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
           var re = /GP_CO2:(.*?)(?=#)/;
           var match = re.exec(decodedData)
-          var value = match[1]
-          ttnData.push( [date, value] )
-          realtimeGraph.updateOptions( { 'file': ttnData } );
+          if (match) {
+            var value = match[1]
+            ttnData[deviceID].push( [date, value] );
+          }
+        });
+        
+        // Newest data is now at index 0, we want it to be at latest index,
+        // so we can add new data to the end and present it as a series in the graph
+        ttnData[deviceID].reverse();
 
-          // Get battery data
-          re = /BAT:(.*?)(?=#)/;
-          match = re.exec(decodedData)
-          var battyerLevel = match[1];
+        // Draw the graph
+        drawGraph(deviceID);
+      })
+      .fail(function() {
+        console.log("TTN get failed!");
+      })
+      .always(function() {
+        // do something?
+      });
+  });
+}
 
-          $( '#latest-value' ).html(date.toLocaleString("nn") + ': <b>' + value + '</b><br />(Battery level: <b>' + battyerLevel + '%</b>)')
+function updateTTNData() {
+  $.each( devices, function(i, device) {
+    var deviceID = device['id'];
+    console.log("Getting data from node: " + deviceID);
+    $.get( baseURL + deviceID)
+      .done(function( data ) {
+        console.log("Got some data from node: " + deviceID + "!");
+        if (ttnData[deviceID].length === 0) {
+          return;
+        }
+
+        var date = new Date(data[0]['time'])
+        var latestStoredDate = new Date(ttnData[deviceID][ttnData[deviceID].length - 1][0]);
+        if ( date.getTime() === latestStoredDate.getTime() ) {
+          console.log('No new value. Timestamp same as latest from historical data.');
+        }
+        else {
+          console.log("New value! Timestamps don't match.");
+          var encodedData = data[0]['data']; // Data is base64 encoded
+          var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
+          var re = /GP_CO2:(.*?)(?=#)/;
+          var match = re.exec(decodedData);
+          if (match) {
+            var value = match[1];
+            ttnData[deviceID].push( [date, value] );
+            graphs[deviceID].updateOptions( { 'file' : ttnData[deviceID] } );
+            $( '#latest-value-' + deviceID ).html(latestDate + ': <b>' + latestValue + '</b>')
+
+            // Add battery level if present
+            re = /BAT:(.*?)(?=#)/;
+            match = re.exec(decodedData)
+            var batteryLevel = match[1];
+
+            if (match) {
+              $( '#latest-value-' + deviceID ).append('<br />(Battery level: <b>' + latestBatteryLevel + '</b>)');
+            }
+          }
         }
       })
       .fail(function() {
@@ -93,27 +130,48 @@ function getNewTTNData() {
   });
 }
 
-function drawRealTimeGraph() {
-  var graphDOMElement = document.getElementById('real-time-graph');
+function drawGraph(deviceID) {
+  if (ttnData[deviceID].length === 0) {
+    console.log("Data set is empty, don't make graph");
+    return;
+  }
 
-  realtimeGraph = new Dygraph(graphDOMElement, ttnData,
+  // Create an element for the graph
+  var $graphDOMElement = $( '<div>' )
+                          .attr('class', 'graph')
+                          .attr('id', 'graph-' + deviceID);
+
+  var latestDate = ttnData[deviceID][ttnData[deviceID].length - 1][0].toLocaleString("nn");
+  var latestValue = ttnData[deviceID][ttnData[deviceID].length - 1][1];
+  var latestBatteryLevel = ttnData[deviceID][ttnData[deviceID].length - 1][2];
+  var $latestValueDOMElement = $( '<p>' )
+                                .attr( 'id', 'latest-value-' + deviceID)
+                                .html(latestDate + ': <b>' + latestValue + '</b>');
+
+  // Add the elements to the graph container
+  $( '#graph-container' ).append( $graphDOMElement );
+  $( '#graph-container' ).append( $('<div class="newest-value"><h5>Newest value</h5></div>').append( $latestValueDOMElement ) );
+
+  var device = $.grep(devices, function(e){ return e.id == deviceID; })[0];
+
+  // Create a Dygraph
+  var graph = new Dygraph($graphDOMElement.get(0), ttnData[deviceID],
     {
-      title: 'CO2 levels Elgeseter gate',
-      color: 'green',
+      title: 'CO2 levels at ' + device['name'],
+      color: device['color'],
       legend: 'always',
       fillGraph: true,
       animatedZooms: true,
+      digitsAfterDecimal: 3,
       // stepPlot: true,
       drawPoints: true,
       // drawGapEdgePoints: true,
       // showRoller: true,
-      valueRange: [0, 650],
-      labels: ['Time', 'Node 02032201'],
+      // valueRange: [0, 420],
+      labels: ['Time', 'Node ' + deviceID],
       ylabel: 'CO2 (ppm)'
     });
-}
 
-$(document).ready(function () {
-  getHistoricalTTNData();
-  setInterval(getNewTTNData, 60000);
-});
+  // Keep track of graphs so we can update them at a later point
+  graphs[deviceID] = graph;
+}
