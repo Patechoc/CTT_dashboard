@@ -6,7 +6,7 @@ body {
   margin-top: 1em;
 }
 
-#real-time-graph {
+.graph {
   width: 100% !important;
 }
 
