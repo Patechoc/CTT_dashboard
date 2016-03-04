@@ -21,7 +21,7 @@ var devices = [
   {
     'id': '02032222',
     'name': 'IoT-labben',
-    'color': 'blue',
+    'color': 'green',
     'position': {
       'lat': 63.417942,
       'lon': 10.401298
@@ -41,13 +41,13 @@ $(document).ready(function () {
 function getHistoricalTTNData() {
   $.each( devices, function(i, device) {
     var deviceID = device['id'];
-    console.log("Getting data from node: " + deviceID);
+    console.log(deviceID + ": GET request sent");
     $.get( baseURL + deviceID)
       .done(function( data ) {
-        console.log("Got some data from node: " + deviceID + "!");
+        console.log(deviceID + ": Data received");
 
         if ($.isEmptyObject(data)) {
-          console.log("Data from node "+deviceID+" was empty, skipping this device");
+          console.log(deviceID + ": Empty data. Skipping this device");
           return;
         }
 
@@ -74,7 +74,7 @@ function getHistoricalTTNData() {
         drawGraph(deviceID);
       })
       .fail(function() {
-        console.log("TTN get failed!");
+        console.log(deviceID + ": TTN get failed!");
       })
       .always(function() {
         // do something?
@@ -85,21 +85,23 @@ function getHistoricalTTNData() {
 function updateTTNData() {
   $.each( devices, function(i, device) {
     var deviceID = device['id'];
-    console.log("Getting data from node: " + deviceID);
+    console.log(deviceID + ": GET request sent");
     $.get( baseURL + deviceID)
       .done(function( data ) {
-        console.log("Got some data from node: " + deviceID + "!");
+        console.log(deviceID + ": Data received");
+
         if (ttnData[deviceID].length === 0) {
+          console.log(deviceID + ": Device has no historical data. Don't update.");
           return;
         }
 
         var date = new Date(data[0]['time'])
         var latestStoredDate = new Date(ttnData[deviceID][ttnData[deviceID].length - 1][0]);
         if ( date.getTime() === latestStoredDate.getTime() ) {
-          console.log('No new value. Timestamp same as latest from historical data.');
+          console.log(deviceID + ': No new value');
         }
         else {
-          console.log("New value! Timestamps don't match.");
+          console.log(deviceID + ": New value!");
           var encodedData = data[0]['data']; // Data is base64 encoded
           var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
           var re = /GP_CO2:(.*?)(?=#)/;
@@ -108,7 +110,7 @@ function updateTTNData() {
             var value = match[1];
             ttnData[deviceID].push( [date, value] );
             graphs[deviceID].updateOptions( { 'file' : ttnData[deviceID] } );
-            $( '#latest-value-' + deviceID ).html(latestDate + ': <b>' + latestValue + '</b>')
+            $( '#latest-value-' + deviceID ).html(date.toLocaleString('nn') + ': <b>' + value + '</b>')
 
             // Add battery level if present
             re = /BAT:(.*?)(?=#)/;
@@ -116,13 +118,13 @@ function updateTTNData() {
             var batteryLevel = match[1];
 
             if (match) {
-              $( '#latest-value-' + deviceID ).append('<br />(Battery level: <b>' + latestBatteryLevel + '</b>)');
+              $( '#latest-value-' + deviceID ).append('<br />(Battery level: <b>' + batteryLevel + '%</b>)');
             }
           }
         }
       })
       .fail(function() {
-        console.log("TTN get failed!");
+        console.log(deviceID + ": TTN get failed!");
       })
       .always(function() {
         // do something?
@@ -132,7 +134,7 @@ function updateTTNData() {
 
 function drawGraph(deviceID) {
   if (ttnData[deviceID].length === 0) {
-    console.log("Data set is empty, don't make graph");
+    console.log(deviceID + ": Data set is empty, don't make graph");
     return;
   }
 
@@ -143,7 +145,6 @@ function drawGraph(deviceID) {
 
   var latestDate = ttnData[deviceID][ttnData[deviceID].length - 1][0].toLocaleString("nn");
   var latestValue = ttnData[deviceID][ttnData[deviceID].length - 1][1];
-  var latestBatteryLevel = ttnData[deviceID][ttnData[deviceID].length - 1][2];
   var $latestValueDOMElement = $( '<p>' )
                                 .attr( 'id', 'latest-value-' + deviceID)
                                 .html(latestDate + ': <b>' + latestValue + '</b>');
