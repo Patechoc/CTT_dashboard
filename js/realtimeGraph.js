@@ -29,13 +29,14 @@ var devices = [
   }
 ];
 
-var baseURL = "http://thethingsnetwork.org/api/v0/nodes/";
+var baseURL = "http://129.241.209.185:1880/api/";
 var ttnData = {};
 var graphs = {};
+var updateInterval = 30000;
 
 $(document).ready(function () {
   getHistoricalTTNData();
-  setInterval(updateTTNData, 30000);
+  setInterval(updateTTNData, updateInterval);
 });
 
 function getHistoricalTTNData() {
@@ -61,7 +62,7 @@ function getHistoricalTTNData() {
           var re = /GP_CO2:(.*?)(?=#)/;
           var match = re.exec(decodedData)
           if (match) {
-            var value = parseInt(match[1], 10)
+            var value = parseFloat(match[1], 10)
             if (value === 0.000) {
               console.log(deviceID + ": Value was 0.000. Skip it")
               return;
@@ -73,7 +74,7 @@ function getHistoricalTTNData() {
         
         // Newest data is now at index 0, we want it to be at latest index,
         // so we can add new data to the end and present it as a series in the graph
-        ttnData[deviceID].reverse();
+        // ttnData[deviceID].reverse();
 
         // Draw the graph
         drawGraph(deviceID);
@@ -95,12 +96,12 @@ function updateTTNData() {
       .done(function( data ) {
         console.log(deviceID + ": Data received");
 
-        if (ttnData[deviceID].length === 0) {
+        if (!ttnData[deviceID] || ttnData[deviceID].length === 0) {
           console.log(deviceID + ": Device has no historical data. Don't update.");
           return;
         }
 
-        var date = new Date(data[0]['time'])
+        var date = new Date(data[data.length - 1]['time'])
         var latestStoredDate = new Date(ttnData[deviceID][ttnData[deviceID].length - 1][0]);
         if ( date.getTime() === latestStoredDate.getTime() ) {
           console.log(deviceID + ': No new value');
@@ -112,7 +113,7 @@ function updateTTNData() {
           var re = /GP_CO2:(.*?)(?=#)/;
           var match = re.exec(decodedData);
           if (match) {
-            var value = parseInt(match[1], 10)
+            var value = parseFloat(match[1], 10)
             if (value === 0.000) {
               console.log(deviceID + ": Value was 0.000. Skip it")
               return;
@@ -154,7 +155,7 @@ function drawGraph(deviceID) {
                           .attr('class', 'graph')
                           .attr('id', 'graph-' + deviceID);
 
-  var latestDate = ttnData[deviceID][ttnData[deviceID].length - 1][0].toLocaleString("nn");
+  var latestDate = ttnData[deviceID][ttnData[deviceID].length - 1][0].toLocaleString('nn');
   var latestValue = ttnData[deviceID][ttnData[deviceID].length - 1][1];
   var $latestValueDOMElement = $( '<p>' )
                                 .attr( 'id', 'latest-value-' + deviceID)
@@ -175,9 +176,9 @@ function drawGraph(deviceID) {
       fillGraph: true,
       animatedZooms: true,
       digitsAfterDecimal: 3,
-      // stepPlot: true,
       drawPoints: true,
       includeZero: true,
+      // stepPlot: true,
       // drawGapEdgePoints: true,
       // showRoller: true,
       // valueRange: [0, 420],
