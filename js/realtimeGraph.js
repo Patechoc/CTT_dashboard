@@ -20,8 +20,8 @@ var devices = [
   },
   {
     'id': '02032222',
-    'name': 'IoT-labben',
-    'color': 'green',
+    'name': 'Udbyes gate 3',
+    'color': '#009900',
     'position': {
       'lat': 63.417942,
       'lon': 10.401298
@@ -63,10 +63,10 @@ function getHistoricalTTNData() {
           var match = re.exec(decodedData)
           if (match) {
             var value = parseFloat(match[1], 10)
-            if (value === 0.000) {
-              console.log(deviceID + ": Value was 0.000. Skip it")
-              return;
-            }
+            // if (value === 0.000) {
+            //   console.log(deviceID + ": Value was 0.000. Skip it")
+            //   return;
+            // }
 
             ttnData[deviceID].push( [date, value] );
           }
@@ -108,16 +108,16 @@ function updateTTNData() {
         }
         else {
           console.log(deviceID + ": New value!");
-          var encodedData = data[0]['data']; // Data is base64 encoded
+          var encodedData = data[data.length - 1]['data']; // Data is base64 encoded
           var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
           var re = /GP_CO2:(.*?)(?=#)/;
           var match = re.exec(decodedData);
           if (match) {
             var value = parseFloat(match[1], 10)
-            if (value === 0.000) {
-              console.log(deviceID + ": Value was 0.000. Skip it")
-              return;
-            }
+            // if (value === 0.000) {
+            //   console.log(deviceID + ": Value was 0.000. Skip it")
+            //   return;
+            // }
 
             ttnData[deviceID].push( [date, value] );
 
@@ -127,7 +127,7 @@ function updateTTNData() {
             // Add battery level if present
             re = /BAT:(.*?)(?=#)/;
             match = re.exec(decodedData)
-            var batteryLevel = match[1];
+            var batteryLevel = parseInt(match[1]);
 
             if (match) {
               $( '#latest-value-' + deviceID ).append('<br />(Battery level: <b>' + batteryLevel + '%</b>)');
@@ -177,7 +177,8 @@ function drawGraph(deviceID) {
       animatedZooms: true,
       digitsAfterDecimal: 3,
       drawPoints: true,
-      includeZero: true,
+      yRangePad: 50,
+      // includeZero: true,
       // stepPlot: true,
       // drawGapEdgePoints: true,
       // showRoller: true,
