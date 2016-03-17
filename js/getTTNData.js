@@ -20,8 +20,8 @@ function getTTNData() {
         }
         var lat = device['position']['lat']
         var lon = device['position']['lon']
-        var timestamp = new Date(data[0]['time']);
-        var encodedData = data[0]['data'] // Data is base64 encoded
+        var timestamp = new Date(data[data.length - 1]['time']);
+        var encodedData = data[data.length - 1]['data'] // Data is base64 encoded
         var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
         var result;
         var sensorDataFormatted = "";

@@ -9,18 +9,18 @@ var devices = [
       'lon': 10.395936
     }
   },
-  {
-    'id': '02032200',
-    'name': 'Udbyes gate',
-    'color': 'orange',
-    'position': {
-      'lat': 63.440186,
-      'lon': 10.402685
-    }
-  },
+  // {
+  //   'id': '02032200',
+  //   'name': 'Udbyes gate',
+  //   'color': 'orange',
+  //   'position': {
+  //     'lat': 63.440186,
+  //     'lon': 10.402685
+  //   }
+  // },
   {
     'id': '02032222',
-    'name': 'Udbyes gate 3',
+    'name': 'Udbyes gate',
     'color': '#009900',
     'position': {
       'lat': 63.417942,
