@@ -23,8 +23,8 @@ var devices = [
     'name': 'Udbyes gate',
     'color': '#009900',
     'position': {
-      'lat': 63.417942,
-      'lon': 10.401298
+      'lat': 63.418838,
+      'lon': 10.394769
     }
   }
 ];

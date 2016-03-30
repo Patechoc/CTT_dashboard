@@ -2,7 +2,7 @@ var base_url = "http://129.241.209.185:1880/api/";
 var devices = [
   {'id': '02032201', 'position': {'lat': 63.419290, 'lon': 10.395936}},
   // {'id': '02032200', 'position': {'lat': 63.427297, 'lon': 10.410000}},
-  {'id': '02032222', 'position': {'lat': 63.418018, 'lon': 10.401240}}
+  {'id': '02032222', 'position': {'lat': 63.418838, 'lon': 10.394769}}
 ];
 var data_from_ttn = [];
 var markers = [];
