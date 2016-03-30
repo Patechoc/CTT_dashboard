@@ -42,6 +42,14 @@ $(document).ready(function () {
 function getHistoricalTTNData() {
   $.each( devices, function(i, device) {
     var deviceID = device['id'];
+
+    var $loadingDOMElement = $( '<div>' )
+                            .attr('id', 'loading-' + deviceID)
+                            .attr('class', 'loading-placeholder')
+                            .html('<i class="fa fa-spinner fa-spin"></i>');
+
+    $( '#graph-container' ).append( $loadingDOMElement );
+
     console.log(deviceID + ": GET request sent");
     $.get( baseURL + deviceID)
       .done(function( data ) {
@@ -83,7 +91,7 @@ function getHistoricalTTNData() {
         console.log(deviceID + ": TTN get failed!");
       })
       .always(function() {
-        // do something?
+        $('#loading-'+deviceID).remove();
       });
   });
 }
@@ -181,7 +189,7 @@ function drawGraph(deviceID) {
       // includeZero: true,
       // stepPlot: true,
       // drawGapEdgePoints: true,
-      // showRoller: true,
+      showRoller: true,
       // valueRange: [0, 420],
       labels: ['Time', 'Node ' + deviceID],
       ylabel: 'CO2 (ppm)'

@@ -41,6 +41,11 @@ body {
   color: #23A4DF;
 }
 
+.loading-placeholder {
+  text-align: center;
+  font-size: 3em;
+}
+
 .text-center {
   text-align: center;
 }
