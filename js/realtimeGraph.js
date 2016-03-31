@@ -52,18 +52,21 @@ function getHistoricalTTNData() {
 
     console.log(deviceID + ": GET request sent");
     $.get( baseURL + deviceID)
-      .done(function( data ) {
+      .done(function( result ) {
         console.log(deviceID + ": Data received");
 
-        if ($.isEmptyObject(data)) {
-          console.log(deviceID + ": Empty data. Skipping this device");
+        if ($.isEmptyObject(result)) {
+          console.log(deviceID + ": Empty result. Skipping this device");
           return;
         }
 
         // Add device to data obejct
         ttnData[deviceID] = [];
 
-        $.each(data, function(k, value) {
+        // Store latest values
+        var latestDate, latestValue, latestBatteryLevel;
+
+        $.each(result, function(k, value) {
           var date = new Date(value['time'])
           var encodedData = value['data'] // Data is base64 encoded
           var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
@@ -78,6 +81,16 @@ function getHistoricalTTNData() {
 
             ttnData[deviceID].push( [date, value] );
           }
+
+          if (k == result.length - 1) {
+            latestDate = date;
+            latestValue = value;
+
+            // Add battery level
+            re = /BAT:(.*?)(?=#)/;
+            match = re.exec(decodedData);
+            latestBatteryLevel = parseInt(match[1]);
+          }
         });
         
         // Newest data is now at index 0, we want it to be at latest index,
@@ -85,7 +98,7 @@ function getHistoricalTTNData() {
         // ttnData[deviceID].reverse();
 
         // Draw the graph
-        drawGraph(deviceID);
+        drawGraph(deviceID, latestDate, latestValue, latestBatteryLevel);
       })
       .fail(function() {
         console.log(deviceID + ": TTN get failed!");
@@ -101,22 +114,22 @@ function updateTTNData() {
     var deviceID = device['id'];
     console.log(deviceID + ": GET request sent");
     $.get( baseURL + deviceID)
-      .done(function( data ) {
+      .done(function( result ) {
         console.log(deviceID + ": Data received");
 
-        if (!ttnData[deviceID] || ttnData[deviceID].length === 0) {
-          console.log(deviceID + ": Device has no historical data. Don't update.");
+        if ($.isEmptyObject(result)) {
+          console.log(deviceID + ": Empty result. Skipping this device");
           return;
         }
 
-        var date = new Date(data[data.length - 1]['time'])
+        var date = new Date(result[result.length - 1]['time'])
         var latestStoredDate = new Date(ttnData[deviceID][ttnData[deviceID].length - 1][0]);
         if ( date.getTime() === latestStoredDate.getTime() ) {
           console.log(deviceID + ': No new value');
         }
         else {
           console.log(deviceID + ": New value!");
-          var encodedData = data[data.length - 1]['data']; // Data is base64 encoded
+          var encodedData = result[result.length - 1]['data']; // Data is base64 encoded
           var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
           var re = /GP_CO2:(.*?)(?=#)/;
           var match = re.exec(decodedData);
@@ -129,17 +142,15 @@ function updateTTNData() {
 
             ttnData[deviceID].push( [date, value] );
 
-            graphs[deviceID].updateOptions( { 'file' : ttnData[deviceID] } );
-            $( '#latest-value-' + deviceID ).html(date.toLocaleString('nn') + ': <b>' + value + '</b>')
-
-            // Add battery level if present
+            // Add battery level
             re = /BAT:(.*?)(?=#)/;
             match = re.exec(decodedData)
             var batteryLevel = parseInt(match[1]);
 
-            if (match) {
-              $( '#latest-value-' + deviceID ).append('<br />(Battery level: <b>' + batteryLevel + '%</b>)');
-            }
+            graphs[deviceID].updateOptions( { 'file' : ttnData[deviceID] } );
+            $( '#latest-value-' + deviceID ).html(date.toLocaleString('nn') + ': <b>' + value + '</b><br />\
+                                                  (Battery level: <b>' + batteryLevel + '%</b>)')
+
           }
         }
       })
@@ -152,7 +163,7 @@ function updateTTNData() {
   });
 }
 
-function drawGraph(deviceID) {
+function drawGraph(deviceID, latestDate, latestValue, latestBatteryLevel) {
   if (ttnData[deviceID].length === 0) {
     console.log(deviceID + ": Data set is empty, don't make graph");
     return;
@@ -163,11 +174,11 @@ function drawGraph(deviceID) {
                           .attr('class', 'graph')
                           .attr('id', 'graph-' + deviceID);
 
-  var latestDate = ttnData[deviceID][ttnData[deviceID].length - 1][0].toLocaleString('nn');
-  var latestValue = ttnData[deviceID][ttnData[deviceID].length - 1][1];
+  latestDate = latestDate.toLocaleString('nn');
   var $latestValueDOMElement = $( '<p>' )
                                 .attr( 'id', 'latest-value-' + deviceID)
-                                .html(latestDate + ': <b>' + latestValue + '</b>');
+                                .html(latestDate + ': <b>' + latestValue + '</b><br />\
+                                  (Battery level: <b>' + latestBatteryLevel + '%</b>)');
 
   // Add the elements to the graph container
   $( '#graph-container' ).append( $graphDOMElement );
