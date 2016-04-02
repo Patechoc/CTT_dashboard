@@ -32,6 +32,11 @@ var sensorMap = [
     'unit': 'ppm'
   },
   {
+    'id': 'GP_CO',
+    'name': 'CO',
+    'unit': 'ppm'
+  },
+  {
     'id': 'GP_TC',
     'name': 'Temperature',
     'unit': 'C'
