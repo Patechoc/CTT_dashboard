@@ -27,6 +27,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dygraph/1.1.1/dygraph-combined.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.1.0/Chart.min.js"></script>
 
   <!-- Favicon
    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -49,11 +50,12 @@
               <a class="button button-primary active" href="#"><i class="fa fa-line-chart"></i> Sensor Feed</a>
           </div>
       </div>
-
-      <div class="row">
-          <div class="twelve columns" id="graph-container"></div>
-      </div>
   </div>
+
+
+  <div class="row" id="graph-container"></div>
+
+  <div class="row" id="chart-container"></div>
 
   <script src="js/realtimeGraph.js"></script>
   <!-- End Document

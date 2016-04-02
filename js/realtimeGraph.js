@@ -7,46 +7,68 @@ var devices = [
     'position': {
       'lat': 63.419290,
       'lon': 10.395936
-    }
+    },
+    'sensors': {},
+    'meta': {}
   },
-  // {
-  //   'id': '02032200',
-  //   'name': 'Udbyes gate',
-  //   'color': 'orange',
-  //   'position': {
-  //     'lat': 63.440186,
-  //     'lon': 10.402685
-  //   }
-  // },
   {
     'id': '02032222',
-    'name': 'Udbyes gate',
+    'name': 'Mobile Waspmote (inside/outside)',
     'color': '#009900',
     'position': {
       'lat': 63.418838,
       'lon': 10.394769
-    }
+    },
+    'sensors': {},
+    'meta': {}
   }
 ];
 
+// List of sensor data we are interested in
+var sensorMap = [
+  {
+    'id': 'GP_CO2',
+    'name': 'CO2',
+    'unit': 'ppm'
+  },
+  {
+    'id': 'GP_TC',
+    'name': 'Temperature',
+    'unit': 'C'
+  },
+  {
+    'id': 'GP_HUM',
+    'name': 'Humidity',
+    'unit': '%'
+  },
+  {
+    'id': 'BAT',
+    'name': 'Battery',
+    'unit': '%'
+  },
+];
+
+// List of metadata we are interested in
+var metaMap = ['rssi', 'dataRate', 'snr', 'frequency', 'gatewayEui'];
+
 var baseURL = "http://129.241.209.185:1880/api/";
-var ttnData = {};
 var graphs = {};
 var updateInterval = 30000;
 
 $(document).ready(function () {
-  getHistoricalTTNData();
-  setInterval(updateTTNData, updateInterval);
+  getHistoricalSensorData();
+  setInterval(updateSensorData, updateInterval);
 });
 
-function getHistoricalTTNData() {
+function getHistoricalSensorData() {
   $.each( devices, function(i, device) {
     var deviceID = device['id'];
 
+    // Create spinning icon to indicate something is happening
     var $loadingDOMElement = $( '<div>' )
-                            .attr('id', 'loading-' + deviceID)
-                            .attr('class', 'loading-placeholder')
-                            .html('<i class="fa fa-spinner fa-spin"></i>');
+      .attr('id', 'loading-' + deviceID)
+      .attr('class', 'loading-placeholder six columns')
+      .html('<i class="fa fa-spinner fa-spin"></i>');
 
     $( '#graph-container' ).append( $loadingDOMElement );
 
@@ -60,48 +82,59 @@ function getHistoricalTTNData() {
           return;
         }
 
-        // Add device to data obejct
-        ttnData[deviceID] = [];
-
-        // Store latest values
-        var latestDate, latestValue, latestBatteryLevel;
-
-        $.each(result, function(k, value) {
-          var date = new Date(value['time'])
-          var encodedData = value['data'] // Data is base64 encoded
+        $.each(result, function(j, frame) {
+          var date = new Date(frame['time'])
+          var encodedData = frame['data'] // Data is base64 encoded
           var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
-          var re = /GP_CO2:(.*?)(?=#)/;
-          var match = re.exec(decodedData)
-          if (match) {
-            var value = parseFloat(match[1], 10)
-            // if (value === 0.000) {
-            //   console.log(deviceID + ": Value was 0.000. Skip it")
-            //   return;
-            // }
 
-            ttnData[deviceID].push( [date, value] );
+          $.each( sensorMap, function(k, sensor) {
+            var sensorField = sensor['name'].toLowerCase();
+            var sensorID = sensor['id']; // ID used in frame
+            var sensorUnit = sensor['unit'];
+
+            var re = new RegExp(sensorID + ':(.*?)(?=#)');
+            var match = re.exec(decodedData)
+            if (match) {
+              if (device['sensors'][sensorField] === undefined) {
+                console.log(deviceID + ": Creating list to store " + sensorField + " values");
+                device['sensors'][sensorField] = {};
+                device['sensors'][sensorField]['id'] = sensorID;
+                device['sensors'][sensorField]['unit'] = sensorUnit;
+                device['sensors'][sensorField]['data'] = [];
+              }
+
+              var value = parseFloat(match[1], 10)
+              device['sensors'][sensorField]['data'].push([date, value])
+            }
+          })
+
+          // Store metadata
+          if (j === 0) {
+            console.log(deviceID + ": Creating metadata metrics");
+            $.each(metaMap, function(l, metric) {
+              device['meta'][metric] = {};
+            })
           }
 
-          if (k == result.length - 1) {
-            latestDate = date;
-            latestValue = value;
+          $.each(metaMap, function(l, metric) {
+            if (device['meta'][metric][frame[metric]] === undefined) {
+              device['meta'][metric][frame[metric]] = 1;
+            } else {
+              device['meta'][metric][frame[metric]] += 1;
+            }
+          })
 
-            // Add battery level
-            re = /BAT:(.*?)(?=#)/;
-            match = re.exec(decodedData);
-            latestBatteryLevel = parseInt(match[1]);
+          // Keep track of latest measurement device made
+          if (j === result.length - 1) {
+            device['latestMeasurement'] = date;
           }
-        });
-        
-        // Newest data is now at index 0, we want it to be at latest index,
-        // so we can add new data to the end and present it as a series in the graph
-        // ttnData[deviceID].reverse();
+        })
 
-        // Draw the graph
-        drawGraph(deviceID, latestDate, latestValue, latestBatteryLevel);
+        drawGraph(device);
+        drawMetaChart(device);
       })
       .fail(function() {
-        console.log(deviceID + ": TTN get failed!");
+        console.log(deviceID + ": GET request failed!");
       })
       .always(function() {
         $('#loading-'+deviceID).remove();
@@ -109,9 +142,10 @@ function getHistoricalTTNData() {
   });
 }
 
-function updateTTNData() {
+function updateSensorData() {
   $.each( devices, function(i, device) {
     var deviceID = device['id'];
+
     console.log(deviceID + ": GET request sent");
     $.get( baseURL + deviceID)
       .done(function( result ) {
@@ -123,89 +157,113 @@ function updateTTNData() {
         }
 
         var date = new Date(result[result.length - 1]['time'])
-        var latestStoredDate = new Date(ttnData[deviceID][ttnData[deviceID].length - 1][0]);
-        if ( date.getTime() === latestStoredDate.getTime() ) {
+        console.log(deviceID + ": " + date + " vs.")
+        console.log(deviceID + ": "+ device['latestMeasurement'])
+        if ( date.getTime() === device['latestMeasurement'].getTime() ) {
           console.log(deviceID + ': No new value');
         }
         else {
-          console.log(deviceID + ": New value!");
+          console.log(deviceID + ": ### New value! Update latestMeasurement field");
+          device['latestMeasurement'] = date;
+
           var encodedData = result[result.length - 1]['data']; // Data is base64 encoded
           var decodedData = atob(encodedData); // atob() is a built in Base64 decoding function
-          var re = /GP_CO2:(.*?)(?=#)/;
-          var match = re.exec(decodedData);
-          if (match) {
-            var value = parseFloat(match[1], 10)
-            // if (value === 0.000) {
-            //   console.log(deviceID + ": Value was 0.000. Skip it")
-            //   return;
-            // }
 
-            ttnData[deviceID].push( [date, value] );
+          $.each( device['sensors'], function(k, sensor) {
+            var sensorID = sensor['id']; // ID used in frame
+            var graphID = sensor['graphID'];
 
-            // Add battery level
-            re = /BAT:(.*?)(?=#)/;
-            match = re.exec(decodedData)
-            var batteryLevel = parseInt(match[1]);
-
-            graphs[deviceID].updateOptions( { 'file' : ttnData[deviceID] } );
-            $( '#latest-value-' + deviceID ).html(date.toLocaleString('nn') + ': <b>' + value + '</b><br />\
-                                                  (Battery level: <b>' + batteryLevel + '%</b>)')
-
-          }
+            var re = new RegExp(sensorID + ':(.*?)(?=#)');
+            var match = re.exec(decodedData)
+            if (match) {
+              var value = parseFloat(match[1], 10)
+              sensor['data'].push([date, value])
+            }
+            
+            graphs[graphID].updateOptions( { 'file' : sensor['data'] } );
+          })
         }
       })
       .fail(function() {
-        console.log(deviceID + ": TTN get failed!");
+        console.log(deviceID + ": GET request failed!");
       })
       .always(function() {
-        // do something?
+        $('#loading-'+deviceID).remove();
       });
   });
 }
 
-function drawGraph(deviceID, latestDate, latestValue, latestBatteryLevel) {
-  if (ttnData[deviceID].length === 0) {
-    console.log(deviceID + ": Data set is empty, don't make graph");
-    return;
-  }
+function drawMetaChart(device) {
+  var data;
 
-  // Create an element for the graph
-  var $graphDOMElement = $( '<div>' )
-                          .attr('class', 'graph')
-                          .attr('id', 'graph-' + deviceID);
+  $container = $( '#chart-container' );
+  $container.append('<div class="twelve columns"><h1>Meta for '+device['id'] +'</h1></div>');
 
-  latestDate = latestDate.toLocaleString('nn');
-  var $latestValueDOMElement = $( '<p>' )
-                                .attr( 'id', 'latest-value-' + deviceID)
-                                .html(latestDate + ': <b>' + latestValue + '</b><br />\
-                                  (Battery level: <b>' + latestBatteryLevel + '%</b>)');
+  $.each(device['meta'], function(metric, values) {
+    var chartID = 'chart-' + device['id'] + '-' + metric;
 
-  // Add the elements to the graph container
-  $( '#graph-container' ).append( $graphDOMElement );
-  $( '#graph-container' ).append( $('<div class="newest-value"><h5>Newest value</h5></div>').append( $latestValueDOMElement ) );
+    // Create an element for the chart
+    var $chartDOMElement = $( '<canvas>' )
+      .attr('class', 'chart')
+      .attr('id', chartID);
+    
+    // Add the element to the chart container
+    $innerContainer = $('<div class="two columns"></div>');
+    $innerContainer.append('<h2>'+metric+'</h2>')
+    $container.append( $innerContainer.append( $chartDOMElement ) );
 
-  var device = $.grep(devices, function(e){ return e.id == deviceID; })[0];
-
-  // Create a Dygraph
-  var graph = new Dygraph($graphDOMElement.get(0), ttnData[deviceID],
-    {
-      title: 'CO2 levels at ' + device['name'],
-      color: device['color'],
-      legend: 'always',
-      fillGraph: true,
-      animatedZooms: true,
-      digitsAfterDecimal: 3,
-      drawPoints: true,
-      yRangePad: 50,
-      // includeZero: true,
-      // stepPlot: true,
-      // drawGapEdgePoints: true,
-      showRoller: true,
-      // valueRange: [0, 420],
-      labels: ['Time', 'Node ' + deviceID],
-      ylabel: 'CO2 (ppm)'
+    data = [];
+    $.each(device['meta'][metric], function(value, count) {
+      data.push({
+        label: value,
+        value: count
+      });
     });
 
-  // Keep track of graphs so we can update them at a later point
-  graphs[deviceID] = graph;
+    var ctx = $('#'+chartID).get(0).getContext("2d");
+    new Chart(ctx).Pie(data);
+  });
+}
+
+function drawGraph(device) {
+  $.each(device['sensors'], function(key, sensor) {
+    if ($.isEmptyObject(sensor['data'])) {
+      console.log(deviceID + ": Data set for "+key+" is empty, don't make graph");
+      return false;
+    }
+
+    var graphID = 'graph-' + device['id'] + '-' + key;
+    sensor['graphID'] = graphID;
+
+    // Create an element for the graph
+    var $graphDOMElement = $( '<div>' )
+      .attr('class', 'graph')
+      .attr('id', graphID);
+    
+    // Add the elements to the graph container
+    $( '#graph-container' ).append( $('<div class="six columns"></div>').append( $graphDOMElement ) );
+    
+    // Create a Dygraph
+    var graph = new Dygraph($graphDOMElement.get(0), sensor['data'],
+      {
+        title: key + ' levels at ' + device['name'],
+        color: device['color'],
+        legend: 'always',
+        fillGraph: true,
+        animatedZooms: true,
+        digitsAfterDecimal: 3,
+        drawPoints: true,
+        yRangePad: 50,
+        // includeZero: true,
+        // stepPlot: true,
+        // drawGapEdgePoints: true,
+        showRoller: true,
+        // valueRange: [0, 420],
+        labels: ['Time', 'Node ' + device['id']],
+        ylabel: key + ' (' + sensor['unit'] + ')'
+      });
+
+    // Keep track of graphs so we can update them at a later point
+    graphs[graphID] = graph;
+  })
 }

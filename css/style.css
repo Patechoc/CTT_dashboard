@@ -6,8 +6,20 @@ body {
   margin-top: 1em;
 }
 
+#graph-container .columns {
+  margin: 0;
+}
+
 .graph {
   width: 100% !important;
+  height: 300px;
+  margin: 2em 0;
+}
+
+#chart-container h1,
+#chart-container h2 {
+  text-align: center;
+  margin-top: 1em;
 }
 
 .newest-value {
