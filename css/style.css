@@ -6,8 +6,9 @@ body {
   margin-top: 1em;
 }
 
-#graph-container .columns {
-  margin: 0;
+#graph-container .columns,
+#chart-container .columns {
+  margin: 0 1%;
 }
 
 .graph {
@@ -17,7 +18,7 @@ body {
 }
 
 #chart-container h1,
-#chart-container h2 {
+#chart-container h3 {
   text-align: center;
   margin-top: 1em;
 }

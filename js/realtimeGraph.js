@@ -49,13 +49,14 @@ var sensorMap = [
 ];
 
 // List of metadata we are interested in
-var metaMap = ['rssi', 'dataRate', 'snr', 'frequency', 'gatewayEui'];
+var metaMap = ['rssi', 'dataRate', 'snr', 'frequency'];
 
 var baseURL = "http://129.241.209.185:1880/api/";
 var graphs = {};
 var updateInterval = 30000;
 
 $(document).ready(function () {
+  Chart.defaults.global.responsive = true;
   getHistoricalSensorData();
   setInterval(updateSensorData, updateInterval);
 });
@@ -208,8 +209,8 @@ function drawMetaChart(device) {
       .attr('id', chartID);
     
     // Add the element to the chart container
-    $innerContainer = $('<div class="two columns"></div>');
-    $innerContainer.append('<h2>'+metric+'</h2>')
+    $innerContainer = $('<div class="three columns"></div>');
+    $innerContainer.append('<h3>'+metric+'</h3>')
     $container.append( $innerContainer.append( $chartDOMElement ) );
 
     data = [];
