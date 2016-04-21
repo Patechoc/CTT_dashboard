@@ -3,7 +3,8 @@ var devices = [
   {
     'id': '02032201',
     'name': 'Elgeseter gate',
-    'color': '#23A4DF',
+    'color': '#03A9F4',
+    'hightlightColor': '#58CBFF',
     'position': {
       'lat': 63.419290,
       'lon': 10.395936
@@ -14,7 +15,8 @@ var devices = [
   {
     'id': '02032222',
     'name': 'Mobile Waspmote (inside/outside)',
-    'color': '#009900',
+    'color': '#56A05F',
+    'hightlightColor': '#59D468',
     'position': {
       'lat': 63.418838,
       'lon': 10.394769
@@ -32,6 +34,11 @@ var sensorMap = [
     'unit': 'ppm'
   },
   {
+    'id': 'IN_TEMP',
+    'name': 'Internal board temperature',
+    'unit': 'C'
+  },
+  {
     'id': 'GP_CO',
     'name': 'CO',
     'unit': 'ppm'
@@ -44,7 +51,7 @@ var sensorMap = [
   {
     'id': 'GP_HUM',
     'name': 'Humidity',
-    'unit': '%'
+    'unit': '%RH'
   },
   {
     'id': 'BAT',
@@ -123,10 +130,20 @@ function getHistoricalSensorData() {
           }
 
           $.each(metaMap, function(l, metric) {
-            if (device['meta'][metric][frame[metric]] === undefined) {
-              device['meta'][metric][frame[metric]] = 1;
+            var value = frame[metric];
+
+            // Make values coarse enough that they makes sense in a chart
+            if (metric === 'snr') {
+              value = Math.round(value)
+            }
+            if (metric === 'rssi') {
+              value = Math.round(value / 10) * 10
+            }
+
+            if (device['meta'][metric][value] === undefined) {
+              device['meta'][metric][value] = 1;
             } else {
-              device['meta'][metric][frame[metric]] += 1;
+              device['meta'][metric][value] += 1;
             }
           })
 
@@ -163,8 +180,6 @@ function updateSensorData() {
         }
 
         var date = new Date(result[result.length - 1]['time'])
-        console.log(deviceID + ": " + date + " vs.")
-        console.log(deviceID + ": "+ device['latestMeasurement'])
         if ( date.getTime() === device['latestMeasurement'].getTime() ) {
           console.log(deviceID + ': No new value');
         }
@@ -218,16 +233,31 @@ function drawMetaChart(device) {
     $innerContainer.append('<h3>'+metric+'</h3>')
     $container.append( $innerContainer.append( $chartDOMElement ) );
 
-    data = [];
+    data = {
+      labels: [],
+      datasets: [
+        {
+          label: metric,
+          fillColor: device['color'],
+          strokeColor: "rgba(0, 0, 0, 0.2)",
+          highlightFill: device['hightlightColor'],
+          highlightStroke: "rgba(0, 0, 0, 0.1)",
+          data: []
+        }
+      ]
+    };
     $.each(device['meta'][metric], function(value, count) {
-      data.push({
-        label: value,
-        value: count
-      });
+      data['labels'].push(value);
+      data['datasets'][0]['data'].push(count);
     });
 
+    data['labels'].sort(sortNumber);
+
     var ctx = $('#'+chartID).get(0).getContext("2d");
-    new Chart(ctx).Pie(data);
+    var options = {
+      barStrokeWidth : 1
+    }
+    new Chart(ctx).Bar(data, options);
   });
 }
 
@@ -272,4 +302,8 @@ function drawGraph(device) {
     // Keep track of graphs so we can update them at a later point
     graphs[graphID] = graph;
   })
+}
+
+function sortNumber(a,b) {
+    return a - b;
 }
