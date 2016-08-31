@@ -48,12 +48,13 @@ function getTTNData() {
 
           // Set color based on CO2 level
           if (name === 'GP_CO2') {
-            if (parseInt(value) > 600) {
-              color = 'orange';
-              if (parseInt(value) > 1000) {
-                color = 'red';
-              }
-            }
+		        if (parseInt(value) > 400) {
+		          color = 'red';
+				}else if (parseInt(value) > 350) {
+		          color = 'orange';
+				}else {
+		          color = 'green';
+				}
           }
         }
 
@@ -105,10 +106,7 @@ function getTTNData() {
 }
 
 $(document).ready(function() {
-  // TODO: for scalability when number of nodes increase,
-  // consider using MQTT instead of API: http://thethingsnetwork.org/wiki/Software/Overview
-
   getTTNData();
   // TODO: keep track of markers and update the popup content every 1 minute or so
-  // setInterval(getTTNData, 10000);
+  //setInterval(getTTNData, 10000);
 });
