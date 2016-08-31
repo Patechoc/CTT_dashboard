@@ -17,9 +17,47 @@ var markers = [];
 
 
 
+function map_labels_entry(labels, nodeMsg) {
+    return lodash.zipObject(labels, nodeMsg);
+}
+
+function map_labels_entries(labels, arr_nodeMsg) {
+    obj = []
+    lodash.map(arr_nodeMsg, function( arr, i ) {
+        obj[i] = map_labels_entry(labels, arr);
+    });
+    return obj;
+}
 
 function fetch_data(days, nodes=[]) {
+    var data = [];
+    var options = {
+	host     : '129.241.107.186',
+	port     : 50000,
+	dbname   : 'ctt',
+	user     : 'co2',
+	password : 'ctt',
+	// GMT+02:00
+	timezoneOffset: 120
+    };
+    var conn = new MDB(options);
+    conn.connect();
 
+    var labels_nodeMsg = ["id","node_eui","gateway_eui","timestring","datarate",
+			  "frequency","snr","rssi","serial_id","waspmote_id","sequence_num",
+			  "sensor_bat", "sensor_gp_co2","sensor_gp_no2","sensor_gp_tc",
+			  "sensor_gp_hum","sensor_str","sensor_pm10","sensor_pm2_5",
+			  "sensor_pm1","server_time","gateway_time","latitude",
+			  "sensor_opc_pm2_5","lsnr","port","sensor_opc_pm1","crc","counter",
+			  "longitude","payload","modulation","channel","dev_eui","rfchain",
+			  "sensor_opc_pm10","altitude","codingrate","sensor_gp_pres"];
+    
+    data = conn.query("SELECT " + labels_nodeMsg + " FROM co2.node_msg WHERE timestamptz >= '2016-08-22T10:13:00' AND timestamptz <= '2016-08-22T10:14:23'").then(function(result) {
+	// Do something with the result
+	console.log(map_labels_entries(['a', 'b'], [[1, 2],[3, 4]]));
+    });
+    conn.close();
+    return data;
 }
 
 
